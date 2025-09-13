@@ -34,6 +34,22 @@ tailwind.config = { theme:{ extend:{ colors:{ brand:{600:'#2563eb',700:'#1d4ed8'
 <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
 
 
+ <!-- Horario General -->
+ <section class="bg-white rounded-2xl shadow p-4">
+  <h2 class="text-lg font-semibold mb-3">Horario General del Negocio</h2>
+  <form id="formHorario" class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+    <div>
+      <label for="horarioGlobalInicio" class="text-xs text-gray-500">Hora de Apertura</label>
+      <input id="horarioGlobalInicio" type="time" class="w-full border rounded-lg px-3 py-2" required />
+    </div>
+    <div>
+      <label for="horarioGlobalFin" class="text-xs text-gray-500">Hora de Cierre</label>
+      <input id="horarioGlobalFin" type="time" class="w-full border rounded-lg px-3 py-2" required />
+    </div>
+    <button class="w-full px-3 py-2 rounded-lg bg-brand-600 text-white">Guardar Horario</button>
+  </form>
+</section>
+
  <!-- Ganancias -->
   <section class="bg-white rounded-2xl shadow p-4">
     <h2 class="text-lg font-semibold mb-3">Ganancias</h2>
@@ -179,6 +195,12 @@ tailwind.config = { theme:{ extend:{ colors:{ brand:{600:'#2563eb',700:'#1d4ed8'
           
           <form id="formConfigBarbero" class="space-y-4">
             <input type="hidden" id="barberoId" name="barberoId">
+
+            <!-- Nombre -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del barbero</label>
+              <input type="text" id="barberoNombre" name="nombre" class="w-full border rounded-lg px-3 py-2" required>
+            </div>
             
             <!-- Horario de trabajo -->
             <div class="grid grid-cols-2 gap-4">
@@ -334,6 +356,52 @@ tailwind.config = { theme:{ extend:{ colors:{ brand:{600:'#2563eb',700:'#1d4ed8'
       </div>
     </div>
   </section>
+
+  <!-- Modal para configurar servicio -->
+  <div id="modalConfigServicio" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-2xl shadow-xl max-w-md w-full">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 id="servicioModalTitle" class="text-xl font-semibold">Configurar Servicio</h3>
+            <button id="btnCerrarModalServicio" class="text-gray-400 hover:text-gray-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+
+          <form id="formConfigServicio" class="space-y-4">
+            <input type="hidden" id="servicioId" name="servicioId">
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del servicio</label>
+              <input type="text" id="servicioNombre" name="nombre" class="w-full border rounded-lg px-3 py-2" required>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+              <input type="number" id="servicioPrecio" name="precio" min="0" step="0.01" class="w-full border rounded-lg px-3 py-2" required>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Duración (minutos)</label>
+              <input type="number" id="servicioDuracion" name="duracion" min="5" step="5" class="w-full border rounded-lg px-3 py-2" required>
+            </div>
+
+            <div class="flex gap-3 pt-4">
+              <button type="submit" class="flex-1 bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-700 transition">
+                Guardar cambios
+              </button>
+              <button type="button" id="btnCancelarConfigServicio" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
     
   </main>
 
