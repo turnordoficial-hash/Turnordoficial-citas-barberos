@@ -35,6 +35,12 @@ function setupEventListeners() {
     if (formBarbero) {
       formBarbero.addEventListener('submit', handleBarberSubmit);
     }
+
+    // Formulario de horario
+    const formHorario = document.getElementById('formHorario');
+    if(formHorario) {
+      formHorario.addEventListener('submit', handleHorarioSubmit);
+    }
     
     // Botones de eliminar servicios
     document.addEventListener('click', (e) => {
@@ -57,6 +63,14 @@ function setupEventListeners() {
       if (e.target.classList.contains('btn-configurar-barbero')) {
         const barberoId = e.target.getAttribute('data-id');
         abrirModalConfigBarbero(barberoId);
+      }
+    });
+
+    // Botones de configurar servicios
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('btn-configurar-servicio')) {
+        const servicioId = e.target.getAttribute('data-id');
+        abrirModalConfigServicio(servicioId);
       }
     });
     
@@ -85,6 +99,29 @@ function setupEventListeners() {
         }
       });
     }
+
+    // Modal de configuración de servicio
+    const modalConfigServicio = document.getElementById('modalConfigServicio');
+    const btnCerrarModalServicio = document.getElementById('btnCerrarModalServicio');
+    const btnCancelarConfigServicio = document.getElementById('btnCancelarConfigServicio');
+    const formConfigServicio = document.getElementById('formConfigServicio');
+
+    if (btnCerrarModalServicio) {
+      btnCerrarModalServicio.addEventListener('click', cerrarModalConfigServicio);
+    }
+    if (btnCancelarConfigServicio) {
+      btnCancelarConfigServicio.addEventListener('click', cerrarModalConfigServicio);
+    }
+    if (formConfigServicio) {
+      formConfigServicio.addEventListener('submit', handleConfigServicioSubmit);
+    }
+    if (modalConfigServicio) {
+      modalConfigServicio.addEventListener('click', (e) => {
+        if (e.target === modalConfigServicio) {
+          cerrarModalConfigServicio();
+        }
+      });
+    }
     
   } catch (error) {
     console.error('Error al configurar event listeners:', error);
@@ -94,6 +131,7 @@ function setupEventListeners() {
 // Cargar datos del negocio
 function loadBusinessData() {
   try {
+    renderHorarioGlobal();
     calcularMetricas();
     renderServicios();
     renderBarberos();
@@ -101,6 +139,17 @@ function loadBusinessData() {
   } catch (error) {
     console.error('Error al cargar datos del negocio:', error);
     TurnORDUtils.notify.error('Error al cargar los datos');
+  }
+}
+
+// Renderizar horario global
+function renderHorarioGlobal() {
+  try {
+    const horario = TURNORD.HORARIO || { inicio: '09:00', fin: '19:00' };
+    document.getElementById('horarioGlobalInicio').value = horario.inicio;
+    document.getElementById('horarioGlobalFin').value = horario.fin;
+  } catch (error) {
+    console.error('Error al renderizar horario global:', error);
   }
 }
 
@@ -227,6 +276,13 @@ function renderServicios() {
         <td class="px-4 py-3">$${parseFloat(servicio.precio || 0).toLocaleString()}</td>
         <td class="px-4 py-3">${parseInt(servicio.duracion || 0)} min</td>
         <td class="px-4 py-3">
+          <button
+            class="btn-configurar-servicio bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors mr-2"
+            data-id="${servicio.id}"
+            title="Configurar servicio"
+          >
+            Editar
+          </button>
           <button 
             class="btn-eliminar-servicio bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors"
             data-id="${servicio.id}"
@@ -690,6 +746,7 @@ function abrirModalConfigBarbero(barberoId) {
     
     // Llenar formulario con datos actuales
     document.getElementById('barberoId').value = barbero.id;
+    document.getElementById('barberoNombre').value = barbero.nombre;
     document.getElementById('horarioInicio').value = barbero.horario_inicio || '09:00';
     document.getElementById('horarioFin').value = barbero.horario_fin || '19:00';
     document.getElementById('breakInicio').value = barbero.break_inicio || '';
@@ -740,6 +797,7 @@ function handleConfigBarberoSubmit(e) {
   try {
     const formData = new FormData(e.target);
     const barberoId = formData.get('barberoId');
+    const nombre = formData.get('nombre')?.toString().trim();
     const horarioInicio = formData.get('horarioInicio');
     const horarioFin = formData.get('horarioFin');
     const breakInicio = formData.get('breakInicio');
@@ -755,6 +813,20 @@ function handleConfigBarberoSubmit(e) {
     });
     
     // Validaciones
+    if (!TurnORDUtils.Validators.isValidString(nombre, 2, 50)) {
+      TurnORDUtils.notify.warning('El nombre del barbero debe tener entre 2 y 50 caracteres');
+      return;
+    }
+
+    const barberoExistente = TURNORD.barberos.find(b =>
+      b.nombre.toLowerCase() === nombre.toLowerCase() && b.id !== barberoId
+    );
+
+    if (barberoExistente) {
+      TurnORDUtils.notify.warning('Ya existe otro barbero con ese nombre');
+      return;
+    }
+
     if (!horarioInicio || !horarioFin) {
       TurnORDUtils.notify.warning('Debe especificar horario de inicio y fin');
       return;
@@ -784,6 +856,7 @@ function handleConfigBarberoSubmit(e) {
     // Actualizar configuración
     TURNORD.barberos[barberoIndex] = {
       ...TURNORD.barberos[barberoIndex],
+      nombre: nombre,
       horario_inicio: horarioInicio,
       horario_fin: horarioFin,
       break_inicio: breakInicio || '',
@@ -1077,3 +1150,150 @@ window.cerrarModalConfigBarbero = cerrarModalConfigBarbero;
 window.initializeEstadisticas = initializeEstadisticas;
 window.actualizarEstadisticas = actualizarEstadisticas;
 window.exportarEstadisticas = exportarEstadisticas;
+
+// Manejar envío del formulario de horario
+function handleHorarioSubmit(e) {
+  e.preventDefault();
+  try {
+    const inicio = document.getElementById('horarioGlobalInicio').value;
+    const fin = document.getElementById('horarioGlobalFin').value;
+
+    if (!inicio || !fin) {
+      TurnORDUtils.notify.warning('Debe especificar horario de apertura y cierre');
+      return;
+    }
+
+    if (inicio >= fin) {
+      TurnORDUtils.notify.warning('La hora de apertura debe ser anterior a la de cierre');
+      return;
+    }
+
+    TURNORD.HORARIO.inicio = inicio;
+    TURNORD.HORARIO.fin = fin;
+
+    const success = TurnORDUtils.StorageUtils.saveConfig(TURNORD);
+
+    if (success) {
+      TurnORDUtils.notify.success('Horario general guardado correctamente');
+    } else {
+      throw new Error('Error al guardar la configuración del horario');
+    }
+
+  } catch (error) {
+    console.error('Error al guardar horario general:', error);
+    TurnORDUtils.notify.error(`Error: ${error.message}`);
+  }
+}
+
+// Abrir modal de configuración de servicio
+function abrirModalConfigServicio(servicioId) {
+  try {
+    const servicio = TURNORD.servicios.find(s => s.id === servicioId);
+    if (!servicio) {
+      TurnORDUtils.notify.error('Servicio no encontrado');
+      return;
+    }
+
+    const modal = document.getElementById('modalConfigServicio');
+    if (!modal) {
+      console.error('Modal de configuración de servicio no encontrado');
+      return;
+    }
+
+    // Llenar formulario
+    document.getElementById('servicioId').value = servicio.id;
+    document.getElementById('servicioNombre').value = servicio.nombre;
+    document.getElementById('servicioPrecio').value = servicio.precio;
+    document.getElementById('servicioDuracion').value = servicio.duracion;
+
+    // Mostrar modal
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+  } catch (error) {
+    console.error('Error al abrir modal de servicio:', error);
+    TurnORDUtils.notify.error('Error al abrir la configuración del servicio');
+  }
+}
+
+// Cerrar modal de configuración de servicio
+function cerrarModalConfigServicio() {
+  try {
+    const modal = document.getElementById('modalConfigServicio');
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+    const form = document.getElementById('formConfigServicio');
+    if (form) {
+      form.reset();
+    }
+  } catch (error) {
+    console.error('Error al cerrar modal de servicio:', error);
+  }
+}
+
+// Manejar envío del formulario de configuración de servicio
+function handleConfigServicioSubmit(e) {
+  e.preventDefault();
+
+  try {
+    const formData = new FormData(e.target);
+    const servicioId = formData.get('servicioId');
+    const nombre = formData.get('nombre')?.toString().trim();
+    const precio = formData.get('precio')?.toString().trim();
+    const duracion = formData.get('duracion')?.toString().trim();
+
+    // Validaciones
+    if (!TurnORDUtils.Validators.isValidString(nombre, 2, 50)) {
+      TurnORDUtils.notify.warning('El nombre del servicio debe tener entre 2 y 50 caracteres');
+      return;
+    }
+    const precioNum = parseFloat(precio);
+    if (isNaN(precioNum) || precioNum <= 0 || precioNum > 999999) {
+      TurnORDUtils.notify.warning('El precio debe ser un número válido entre 1 y 999,999');
+      return;
+    }
+    const duracionNum = parseInt(duracion, 10);
+    if (isNaN(duracionNum) || duracionNum < 5 || duracionNum > 480) {
+      TurnORDUtils.notify.warning('La duración debe estar entre 5 y 480 minutos');
+      return;
+    }
+
+    const servicioExistente = TURNORD.servicios.find(s =>
+      s.nombre.toLowerCase() === nombre.toLowerCase() && s.id !== servicioId
+    );
+    if (servicioExistente) {
+      TurnORDUtils.notify.warning('Ya existe otro servicio con ese nombre');
+      return;
+    }
+
+    // Encontrar y actualizar servicio
+    const servicioIndex = TURNORD.servicios.findIndex(s => s.id === servicioId);
+    if (servicioIndex === -1) {
+      throw new Error('Servicio no encontrado');
+    }
+
+    TURNORD.servicios[servicioIndex] = {
+      ...TURNORD.servicios[servicioIndex],
+      nombre,
+      precio: precioNum,
+      duracion: duracionNum
+    };
+
+    // Guardar cambios
+    const success = TurnORDUtils.StorageUtils.saveConfig(TURNORD);
+
+    if (success) {
+      TurnORDUtils.notify.success('Servicio actualizado correctamente');
+      cerrarModalConfigServicio();
+      renderServicios();
+    } else {
+      throw new Error('Error al guardar la configuración');
+    }
+
+  } catch (error) {
+    console.error('Error al guardar configuración de servicio:', error);
+    TurnORDUtils.notify.error(`Error: ${error.message}`);
+  }
+}
