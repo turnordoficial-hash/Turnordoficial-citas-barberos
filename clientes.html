@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TurnORD - Reservar Cita</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="imegenlogin/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="imegenlogin/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="imegenlogin/favicon-16x16.png">
+  <link rel="manifest" href="imegenlogin/site.webmanifest">
+  <script src="https://cdn.tailwindcss.com" defer></script>
+  <script src="config.js" defer></script>
+  <script src="js/utils.js" defer></script>
+    <script src="js/clientes.js" defer></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+  <div class="max-w-xl mx-auto bg-white shadow-lg rounded-2xl p-6">
+    <h2 class="text-2xl font-bold text-blue-700 mb-4">Reserva tu cita</h2>
+    <form id="formCita" class="space-y-4">
+      <input type="text" id="nombre" placeholder="Tu nombre" required class="w-full border rounded-lg p-2">
+      <input type="tel" id="telefono" placeholder="Teléfono" required class="w-full border rounded-lg p-2">
+      <input type="email" id="email" placeholder="Correo electrónico (opcional)" class="w-full border rounded-lg p-2">
+      <select id="servicio" required class="w-full border rounded-lg p-2">
+        <option value="">Selecciona un servicio</option>
+        <option value="Corte">Corte</option>
+        <option value="Barba">Barba</option>
+        <option value="Corte + Barba">Corte + Barba</option>
+      </select>
+      <select id="barbero" required class="w-full border rounded-lg p-2"></select>
+      <input type="date" id="fecha" required class="w-full border rounded-lg p-2">
+      <input type="time" id="hora" required class="w-full border rounded-lg p-2">
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg w-full">
+        Confirmar cita
+      </button>
+    </form>
+    <div id="mensaje" class="mt-4 hidden p-3 rounded-lg text-center"></div>
+  </div>
+
+
+</body>
+</html>
+
+

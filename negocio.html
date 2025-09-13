@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurnORD • Negocio</title>
+<link rel="apple-touch-icon" sizes="180x180" href="imegenlogin/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="imegenlogin/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="imegenlogin/favicon-16x16.png">
+<link rel="manifest" href="imegenlogin/site.webmanifest">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme:{ extend:{ colors:{ brand:{600:'#2563eb',700:'#1d4ed8'} } } } };
+</script>
+<script src="config.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/negocio.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<!-- Header -->
+<header class="bg-brand-600 text-white shadow-md sticky top-0 z-50">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+    <h1 class="text-2xl font-bold">TurnORD • Negocio</h1>
+    <nav class="flex gap-3">
+      <a href="./inicio.html" class="px-3 py-2 rounded-lg hover:bg-white/20 transition">Inicio</a>
+      <a href="./citas.html" class="px-3 py-2 rounded-lg hover:bg-white/20 transition">Reservar Cita</a>
+      <a href="./negocio.html" class="px-3 py-2 rounded-lg bg-white/20 transition">Negocio</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+
+
+ <!-- Ganancias -->
+  <section class="bg-white rounded-2xl shadow p-4">
+    <h2 class="text-lg font-semibold mb-3">Ganancias</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div class="rounded-xl border p-3">
+        <div class="text-sm text-gray-500">Hoy</div>
+        <div id="gananciasHoy" class="text-2xl font-bold">$0</div>
+      </div>
+      <div class="rounded-xl border p-3">
+        <div class="text-sm text-gray-500">Semana</div>
+        <div id="gananciasSemana" class="text-2xl font-bold">$0</div>
+      </div>
+      <div class="rounded-xl border p-3">
+        <div class="text-sm text-gray-500">Mes</div>
+        <div id="gananciasMes" class="text-2xl font-bold">$0</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Servicios activos -->
+  <section class="bg-white rounded-2xl shadow p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold">Servicios activos</h2>
+    </div>
+    <form id="formServicio" class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+      <div>
+        <label class="text-xs text-gray-500">Nombre</label>
+        <input id="srvNombre" name="nombre" type="text" class="w-full border rounded-lg px-3 py-2" placeholder="Corte, Barba..." required />
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">Tiempo estimado (min)</label>
+        <input id="srvTiempo" name="duracion" type="number" min="5" step="5" class="w-full border rounded-lg px-3 py-2" placeholder="30" required />
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">Precio</label>
+        <input id="srvPrecio" name="precio" type="number" min="0" step="0.01" class="w-full border rounded-lg px-3 py-2" placeholder="10.00" required />
+      </div>
+      <div class="flex items-end">
+        <button class="w-full px-3 py-2 rounded-lg bg-brand-600 text-white">Agregar</button>
+      </div>
+    </form>
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse text-left">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="border px-3 py-2">Nombre</th>
+            <th class="border px-3 py-2">Precio</th>
+            <th class="border px-3 py-2">Duración</th>
+            <th class="border px-3 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="serviciosTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Tabla de ingresos diarios -->
+  <section class="bg-white rounded-2xl shadow p-4">
+    <h2 class="text-lg font-semibold mb-3">Ingresos diarios</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse text-left">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="border px-3 py-2">Fecha</th>
+            <th class="border px-3 py-2">Cliente</th>
+            <th class="border px-3 py-2">Barbero</th>
+            <th class="border px-3 py-2">Servicio</th>
+            <th class="border px-3 py-2">Monto</th>
+          </tr>
+        </thead>
+        <tbody id="ingresosTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+
+
+  <!-- Métricas -->
+  <section class="bg-white rounded-2xl shadow p-4">
+    <h2 class="text-lg font-semibold mb-3">Métricas y estadísticas</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="rounded-xl border p-3">
+        <div class="text-sm text-gray-500">Hoy</div>
+        <div id="mHoy" class="text-2xl font-bold">0</div>
+      </div>
+      <div class="rounded-xl border p-3">
+        <div class="text-sm text-gray-500">Semana</div>
+        <div id="mSemana" class="text-2xl font-bold">0</div>
+      </div>
+      <div class="rounded-xl border p-3">
+        <div class="text-sm text-gray-500">Canceladas (mes)</div>
+        <div id="mCanceladasMes" class="text-2xl font-bold">0</div>
+      </div>
+      <div class="rounded-xl border p-3">
+        <div class="text-sm text-gray-500">Ocupación (hoy)</div>
+        <div id="mOcupacion" class="text-2xl font-bold">0%</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gestión de barberos -->
+  <section class="bg-white rounded-2xl shadow p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold">Barberos y horarios</h2>
+      <button id="btnNuevoBarbero" class="px-3 py-2 rounded-lg bg-brand-600 text-white">Nuevo barbero</button>
+    </div>
+    <div class="space-y-3">
+      <form id="formBarbero" class="flex gap-2 items-end">
+        <div class="flex-1">
+          <label class="text-xs text-gray-500">Nombre del barbero</label>
+          <input type="text" name="nombre" class="w-full border rounded-lg px-3 py-2" placeholder="Nombre" required />
+        </div>
+        <button class="px-3 py-2 rounded-lg bg-brand-600 text-white">Agregar</button>
+      </form>
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse text-left">
+          <thead>
+            <tr class="bg-gray-100">
+              <th class="border px-3 py-2">Barbero</th>
+              <th class="border px-3 py-2">Citas atendidas</th>
+              <th class="border px-3 py-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="barberosTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal para configurar barbero -->
+  <div id="modalConfigBarbero" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 id="modalTitle" class="text-xl font-semibold">Configurar Barbero</h3>
+            <button id="btnCerrarModal" class="text-gray-400 hover:text-gray-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          
+          <form id="formConfigBarbero" class="space-y-4">
+            <input type="hidden" id="barberoId" name="barberoId">
+            
+            <!-- Horario de trabajo -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Hora de inicio</label>
+                <input type="time" id="horarioInicio" name="horarioInicio" class="w-full border rounded-lg px-3 py-2" required>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Hora de fin</label>
+                <input type="time" id="horarioFin" name="horarioFin" class="w-full border rounded-lg px-3 py-2" required>
+              </div>
+            </div>
+            
+            <!-- Break -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Inicio de break</label>
+                <input type="time" id="breakInicio" name="breakInicio" class="w-full border rounded-lg px-3 py-2">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Fin de break</label>
+                <input type="time" id="breakFin" name="breakFin" class="w-full border rounded-lg px-3 py-2">
+              </div>
+            </div>
+            
+            <!-- Padding después del break -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tiempo adicional después del break (minutos)</label>
+              <input type="number" id="breakPadding" name="breakPadding" min="0" max="60" class="w-full border rounded-lg px-3 py-2" placeholder="0">
+              <p class="text-xs text-gray-500 mt-1">Tiempo de preparación después del break antes de atender al siguiente cliente</p>
+            </div>
+            
+            <!-- Días de trabajo -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Días de trabajo</label>
+              <div class="grid grid-cols-7 gap-2">
+                <label class="flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="checkbox" name="dias" value="1" class="mb-1">
+                  <span class="text-xs">Lun</span>
+                </label>
+                <label class="flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="checkbox" name="dias" value="2" class="mb-1">
+                  <span class="text-xs">Mar</span>
+                </label>
+                <label class="flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="checkbox" name="dias" value="3" class="mb-1">
+                  <span class="text-xs">Mié</span>
+                </label>
+                <label class="flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="checkbox" name="dias" value="4" class="mb-1">
+                  <span class="text-xs">Jue</span>
+                </label>
+                <label class="flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="checkbox" name="dias" value="5" class="mb-1">
+                  <span class="text-xs">Vie</span>
+                </label>
+                <label class="flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="checkbox" name="dias" value="6" class="mb-1">
+                  <span class="text-xs">Sáb</span>
+                </label>
+                <label class="flex flex-col items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input type="checkbox" name="dias" value="0" class="mb-1">
+                  <span class="text-xs">Dom</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- Estado activo -->
+            <div class="flex items-center">
+              <input type="checkbox" id="barberoActivo" name="activo" class="mr-2">
+              <label for="barberoActivo" class="text-sm font-medium text-gray-700">Barbero activo</label>
+            </div>
+            
+            <div class="flex gap-3 pt-4">
+              <button type="submit" class="flex-1 bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-700 transition">
+                Guardar configuración
+              </button>
+              <button type="button" id="btnCancelarConfig" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estadísticas de Ganancias -->
+  <section class="bg-white rounded-2xl shadow p-4">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold">Estadísticas de Ganancias</h2>
+      <div class="flex gap-2">
+        <select id="filtroFecha" class="px-3 py-1 border rounded-lg text-sm">
+          <option value="hoy">Hoy</option>
+          <option value="semana">Esta semana</option>
+          <option value="mes" selected>Este mes</option>
+          <option value="trimestre">Este trimestre</option>
+          <option value="año">Este año</option>
+        </select>
+        <select id="filtroBarbero" class="px-3 py-1 border rounded-lg text-sm">
+          <option value="todos">Todos los barberos</option>
+        </select>
+        <button id="exportarDatos" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+          Exportar
+        </button>
+      </div>
+    </div>
+    
+    <!-- Resumen de ganancias -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-green-50 p-4 rounded-lg">
+        <h3 class="text-sm font-medium text-green-800">Ingresos Totales</h3>
+        <p id="ingresosTotales" class="text-2xl font-bold text-green-900">$0</p>
+      </div>
+      <div class="bg-blue-50 p-4 rounded-lg">
+        <h3 class="text-sm font-medium text-blue-800">Citas Completadas</h3>
+        <p id="citasCompletadas" class="text-2xl font-bold text-blue-900">0</p>
+      </div>
+      <div class="bg-purple-50 p-4 rounded-lg">
+        <h3 class="text-sm font-medium text-purple-800">Promedio por Cita</h3>
+        <p id="promedioCita" class="text-2xl font-bold text-purple-900">$0</p>
+      </div>
+      <div class="bg-orange-50 p-4 rounded-lg">
+        <h3 class="text-sm font-medium text-orange-800">Mejor Barbero</h3>
+        <p id="mejorBarbero" class="text-lg font-bold text-orange-900">-</p>
+      </div>
+    </div>
+    
+    <!-- Tabla de estadísticas detalladas -->
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-50">
+            <th class="border p-3 text-left font-medium">Barbero</th>
+            <th class="border p-3 text-left font-medium">Citas</th>
+            <th class="border p-3 text-left font-medium">Ingresos</th>
+            <th class="border p-3 text-left font-medium">Promedio</th>
+            <th class="border p-3 text-left font-medium">Servicios Populares</th>
+            <th class="border p-3 text-left font-medium">Calificación</th>
+          </tr>
+        </thead>
+        <tbody id="tablaEstadisticas">
+          <!-- Los datos se cargarán dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Gráfico de tendencias -->
+    <div class="mt-6">
+      <h3 class="text-md font-semibold mb-3">Tendencia de Ingresos</h3>
+      <div id="graficoTendencias" class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+        <p class="text-gray-500">Gráfico de tendencias (se implementará con Chart.js)</p>
+      </div>
+    </div>
+  </section>
+    
+  </main>
+
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TurnORD • Inicio</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="imegenlogin/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="imegenlogin/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="imegenlogin/favicon-16x16.png">
+  <link rel="manifest" href="imegenlogin/site.webmanifest">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { brand: { 600:'#2563eb', 700:'#1d4ed8' } } } }
+    };
+  </script>
+  <script src="config.js"></script>
+    <script src="js/utils.js"></script>
+        <script src="js/inicio.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+
+  <!-- Header -->
+  <header class="bg-brand-600 text-white shadow-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold">TurnORD • Inicio</h1>
+      <nav class="flex gap-3">
+        <a href="./inicio.html" class="px-3 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition">Inicio</a>
+        <a href="citas.html" class="px-3 py-2 rounded-lg hover:bg-white/20 transition"> Cita</a>
+        <a href="./negocio.html" class="px-3 py-2 rounded-lg hover:bg-white/20 transition">Negocio</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto px-4 py-8 space-y-6">
+
+    <!-- Dashboard Cards -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-white shadow rounded-2xl p-6">
+        <p class="text-gray-500">Turnos Hoy</p>
+        <h2 class="text-3xl font-bold" id="turnosHoy">0</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-6">
+        <p class="text-gray-500">Pendientes</p>
+        <h2 class="text-3xl font-bold" id="turnosPendientes">0</h2>
+      </div>
+      <div class="bg-white shadow rounded-2xl p-6">
+        <p class="text-gray-500">Atendidos</p>
+        <h2 class="text-3xl font-bold" id="turnosAtendidos">0</h2>
+      </div>
+    </section>
+
+    <!-- Próximas Citas -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4 border-b pb-2">Próximas Citas</h2>
+      <div id="proximasCitas" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+<!-- Historial de clientes (atendidas) -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4 border-b pb-2">Historial de clientes</h2>
+      <div class="bg-white rounded-2xl shadow p-4">
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="border px-3 py-2">Fecha/Hora</th>
+                <th class="border px-3 py-2">Cliente</th>
+                <th class="border px-3 py-2">Servicio</th>
+                <th class="border px-3 py-2">Método</th>
+                <th class="border px-3 py-2 text-right">Monto</th>
+              </tr>
+            </thead>
+            <tbody id="historialBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Atender cita -->
+  <div id="modalAtender" class="fixed inset-0 hidden items-center justify-center z-50">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+      <div class="flex items-start justify-between mb-4">
+        <h3 class="text-lg font-semibold">¿Atender cita?</h3>
+        <button id="btnAtenderClose" class="text-gray-500 hover:text-gray-700">&times;</button>
+      </div>
+      <div class="space-y-2 text-sm text-gray-700">
+        <p><span class="font-semibold">Cliente:</span> <span id="modalCliente"></span></p>
+        <p><span class="font-semibold">Servicio:</span> <span id="modalServicio"></span></p>
+        <p><span class="font-semibold">Fecha/Hora:</span> <span id="modalFechaHora"></span></p>
+        <label class="block mt-2">
+          <span class="text-xs text-gray-500">Tiempo estimado (minutos)</span>
+          <input id="modalTiempo" type="number" min="5" step="5" class="mt-1 w-full border rounded-lg px-3 py-2" />
+        </label>
+      </div>
+      <div class="mt-6 flex justify-between gap-2">
+        <button id="btnCancelarCita" class="px-4 py-2 rounded-lg border border-red-300 text-red-700">Cancelar cita</button>
+        <div class="flex gap-2">
+          <button id="btnAtenderCancel" class="px-4 py-2 rounded-lg border">Cerrar</button>
+          <button id="btnAtenderConfirm" class="px-4 py-2 rounded-lg bg-brand-600 text-white">Atender</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Cobro -->
+  <div id="modalCobro" class="fixed inset-0 hidden items-center justify-center z-50">
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+      <div class="flex items-start justify-between mb-4">
+        <h3 class="text-lg font-semibold">Cobrar cita</h3>
+        <button id="btnCobroClose" class="text-gray-500 hover:text-gray-700">&times;</button>
+      </div>
+      <div class="space-y-3 text-sm text-gray-700">
+        <div>
+          <div class="text-xs text-gray-500">Cliente</div>
+          <div id="cobroCliente" class="font-semibold">—</div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <label class="block">
+            <span class="text-xs text-gray-500">Monto</span>
+            <input id="cobroMonto" type="number" min="0" step="0.01" class="mt-1 w-full border rounded-lg px-3 py-2" />
+          </label>
+          <label class="block">
+            <span class="text-xs text-gray-500">Método de pago</span>
+            <select id="cobroMetodo" class="mt-1 w-full border rounded-lg px-3 py-2">
+              <option>Efectivo</option>
+              <option>Tarjeta</option>
+              <option>Transferencia</option>
+              <option>Otro</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button id="btnCobroCancel" class="px-4 py-2 rounded-lg border">Cancelar</button>
+        <button id="btnCobroSave" class="px-4 py-2 rounded-lg bg-green-600 text-white">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="bg-gray-100 text-gray-600 py-4 mt-8 text-center text-sm">
+    &copy; 2025 TurnORD. Todos los derechos reservados.
+  </footer>
+
+
+
+</body>
+</html>
