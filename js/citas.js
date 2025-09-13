@@ -209,48 +209,60 @@ function renderDia(fecha) {
     const slots = genSlots(TURNORD.HORARIO.inicio, TURNORD.HORARIO.fin);
     const citas = getCitasLocal().filter(c => c.fecha === fecha);
     const container = document.getElementById('agenda');
-    
+
     if (!container) {
       throw new Error('Contenedor de agenda no encontrado');
     }
-    
+
     const cols = ['Hora', ...barberos.map(b => b.nombre)];
-    
+
     // Crear encabezado
     const head = `<div class="min-w-[640px] grid" style="grid-template-columns: repeat(${cols.length}, minmax(140px,1fr))">
       ${cols.map(c => `<div class="px-2 py-1 bg-gray-100 font-semibold border">${c}</div>`).join('')}
     </div>`;
-    
+
+    const ahora = new Date();
+    const esHoy = toISODate(ahora) === fecha;
+    const horaActual = `${ahora.getHours().toString().padStart(2, '0')}:${ahora.getMinutes().toString().padStart(2, '0')}`;
+    const fechaRenderizada = new Date(fecha + 'T00:00:00');
+    const hoySinHora = new Date();
+    hoySinHora.setHours(0, 0, 0, 0);
+    const esFechaPasada = fechaRenderizada < hoySinHora;
+
     // Crear filas
     const rows = slots.map(slot => {
       const cells = [`<div class="px-2 py-1 border text-sm">${slot}</div>`];
-      
+
       barberos.forEach(b => {
         const cita = citas.find(c => c.barbero_id === b.id && c.hora.slice(0, 5) === slot);
         const color = getCitaColor(cita?.estado);
-        
+
         if (cita) {
           cells.push(`<div class="px-2 py-1 border ${color} cursor-pointer" onclick="editCita('${cita.id}')">
             ${cita.cliente_nombre} (${cita.estado})
           </div>`);
         } else {
-          cells.push(`<div class="px-2 py-1 border">
-            <button class="px-1 py-0.5 bg-brand-600 hover:bg-brand-700 text-white rounded transition-colors" 
-              data-barbero="${b.id}" data-hora="${slot}">Crear</button>
-          </div>`);
+          if (esFechaPasada || (esHoy && slot < horaActual)) {
+            cells.push(`<div class="px-2 py-1 border bg-gray-50"></div>`);
+          } else {
+            cells.push(`<div class="px-2 py-1 border">
+              <button class="px-1 py-0.5 bg-brand-600 hover:bg-brand-700 text-white rounded transition-colors"
+                data-barbero="${b.id}" data-hora="${slot}">Crear</button>
+            </div>`);
+          }
         }
       });
-      
+
       return `<div class="min-w-[640px] grid" style="grid-template-columns: repeat(${cols.length}, minmax(140px,1fr))">
         ${cells.join('')}
       </div>`;
     }).join('');
-    
+
     container.innerHTML = head + rows;
-    
+
     // Configurar botones de crear cita
     setupCreateButtons(fecha);
-    
+
   } catch (error) {
     console.error('Error al renderizar día:', error);
     TurnORDUtils.notify.error('Error al cargar la vista del día');
@@ -568,8 +580,6 @@ function cerrarModalNuevaCita() {
 
 function crearNuevaCita() {
   try {
-    const formData = new FormData(document.getElementById('formNuevaCita'));
-    
     const nuevaCita = {
       id: Date.now().toString(),
       clienteNombre: document.getElementById('clienteNombre').value,
@@ -582,23 +592,33 @@ function crearNuevaCita() {
       estado: 'pendiente',
       fechaCreacion: new Date().toISOString()
     };
-    
+
     // Validar campos requeridos
     if (!nuevaCita.clienteNombre || !nuevaCita.barberoId || !nuevaCita.servicioId || !nuevaCita.fecha || !nuevaCita.hora) {
       TurnORDUtils.notify.error('Por favor complete todos los campos requeridos');
       return;
     }
-    
-    // Guardar cita
-    saveCitaLocal(nuevaCita);
-    
+
+    // Validar que la fecha y hora no sean en el pasado
+    const ahora = new Date();
+    const fechaCita = new Date(`${nuevaCita.fecha}T${nuevaCita.hora}`);
+    if (fechaCita < ahora) {
+      TurnORDUtils.notify.error('No se puede crear una cita en una fecha u hora pasada.');
+      return;
+    }
+
+    // Guardar cita (simulado)
+    const allCitas = getCitasLocal();
+    allCitas.push(nuevaCita);
+    localStorage.setItem('citas', JSON.stringify(allCitas));
+
     // Cerrar modal y actualizar vista
     cerrarModalNuevaCita();
     build();
     actualizarEstadisticas();
-    
+
     TurnORDUtils.notify.success('Cita creada exitosamente');
-    
+
   } catch (error) {
     console.error('Error al crear cita:', error);
     TurnORDUtils.notify.error('Error al crear la cita');
